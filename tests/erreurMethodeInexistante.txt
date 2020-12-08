@@ -1,0 +1,13 @@
+class A() is {
+    def A() is{
+            
+    }
+}
+
+{
+    a:A := new A();
+    
+    is
+
+    a.getName();	/* getName() n'est pas une méthode de A */
+}

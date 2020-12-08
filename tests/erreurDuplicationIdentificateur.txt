@@ -1,0 +1,16 @@
+class A() is {
+    def A() is{
+            
+    }
+
+   def somme(x: Integer, y : Integer) : Integer := x + y
+}
+
+{
+    a:A := new A();
+    a:Integer := 12;	/* erreur : l'identificateur "a" est dupliqué */
+    
+    is
+
+    res:Integer : somme(2, a);
+}

@@ -1,0 +1,9 @@
+{
+  cpt : Integer := 12;
+is
+  "Debut du programme".println();
+
+  compteur := cpt + 1; /* compteur n'est pas défini */
+  
+  "\nDone".println();
+}

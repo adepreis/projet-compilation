@@ -1,0 +1,15 @@
+class A() is {
+    def A() is{
+            
+    }
+
+   def h(x: Integer, y : Integer) : String := "x + y"
+}
+
+{
+    a:A := new A();
+    
+    is
+
+    res:Integer : h(93, 5);	/* h() ne renvoie pas un Integer mais un String */
+}

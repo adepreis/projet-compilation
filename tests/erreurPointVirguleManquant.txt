@@ -1,0 +1,7 @@
+{
+  cpt : Integer := 12;
+is
+  "Debut du programme".println();
+
+  cpt := cpt + 1	/* erreur : symbole ";" de fin d'instruction manquant */
+}

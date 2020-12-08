@@ -1,0 +1,15 @@
+class A() is {
+    def A() is{
+            
+    }
+
+   def somme(x: Integer, y : Integer) : Integer := x + y
+}
+
+{
+    a:A := new A();
+    
+    is
+
+    res:Integer : somme(2, 5, 3);	/* erreur : trop d'arguments */
+}

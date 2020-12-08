@@ -1,0 +1,3 @@
+{
+  'Debut du programme'.println(); /* Simple quote au lieu de double */
+}

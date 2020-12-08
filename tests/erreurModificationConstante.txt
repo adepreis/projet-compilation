@@ -1,0 +1,3 @@
+{
+  2 := 5;	/* Impossible d'affecter une valeur à une constante */
+}

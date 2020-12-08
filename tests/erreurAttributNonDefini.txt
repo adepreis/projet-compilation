@@ -1,0 +1,13 @@
+class A() is {
+    def A() is{
+            
+    }
+}
+
+{
+    a:A := new A();
+    
+    is
+
+    a.name;	/* name n'est pas un attribut de A */
+}

@@ -1,0 +1,14 @@
+class A() is {
+   var v : Integer;
+   def f() is { "A::f()\"n".print(); }
+   def h(x: Integer, y : Integer) : Integer := x + y
+   def A() is { v := 1; }
+}
+
+class B() is {
+   var name : String;
+   def affiche() : Integer := this.next
+   def B(n: String) is { name := n; }
+}
+
+/* erreur : pas de bloc d'instruction */

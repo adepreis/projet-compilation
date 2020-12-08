@@ -1,0 +1,15 @@
+class A() is {
+    def A() is{
+            
+    }
+
+   def h(x: Integer, y : Integer) : Integer := x + y
+}
+
+{
+    a:A := new A();
+    
+    is
+
+    res:Integer : h(93, 5));	/* erreur de parenthésage */
+}

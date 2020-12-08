@@ -1,0 +1,31 @@
+/* erreur : la classe A2 hérite d'une classe A inexistante */
+class A2() extends A is {
+   var v : String;
+
+   def A2() : A() is { v := "hello"; }
+  
+   def override f() is { "A2::f()\"n".print(); }
+
+   def g() is {
+      this.v := "world";
+      (as A : this).v := 12;
+      this.f();
+      (as A: this).f();
+   }
+
+   def override h(x : Integer, y: Integer) : Integer := super.h(2*x, 3*y)
+}
+
+{
+   a: A := new A();
+   a2: A2 := new A2();
+ is
+    a.f();
+    a.h().toString().println();
+    a2.f();
+    a.h().toString().println();
+    a2.g();
+    a := a2;
+    a.f();
+    a.h().toString().println(); 
+}

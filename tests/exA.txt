@@ -1,0 +1,39 @@
+/* des exemples ad-hoc qui montrent d'autres aspects ... */
+class A() is {
+   var v : Integer;
+   def f() is { "A::f()\"n".print(); }
+   def h(x: Integer, y : Integer) : Integer := x + y
+   def A() is { v := 1; }
+}
+
+class A2() extends A is {
+   var v : String; /* masque le champ v de la classe A */
+
+   def A2() : A() is { v := "hello"; }
+  
+   def override f() is { "A2::f()\"n".print(); }
+
+   def g() is {
+      this.v := "world";
+      /* this etant caste en A, le champ v en question est celui de A */
+      (as A : this).v := 12;
+      /* les deux appels doivent fournir la meme chose */
+      this.f();
+      (as A: this).f();
+   }
+
+   def override h(x : Integer, y: Integer) : Integer := super.h(2*x, 3*y)
+}
+{
+   a: A := new A();
+   a2: A2 := new A2();
+ is
+    a.f();
+    a.h().toString().println();
+    a2.f();
+    a.h().toString().println();
+    a2.g();
+    a := a2;
+    a.f();
+    a.h().toString().println(); 
+}

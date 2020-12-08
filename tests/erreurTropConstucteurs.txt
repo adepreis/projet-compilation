@@ -1,0 +1,20 @@
+class A() is {
+	var name: String;
+
+    def A() is {
+            
+    }
+
+	/* La classe ne doit pas comporter plus d'un constructeur */
+    def A(n: String) is {
+		name := n;
+    }
+}
+
+{
+    a:A := new A();
+
+    is
+
+    a.name.println();
+}

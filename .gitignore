@@ -1,3 +1,4 @@
+# === OCaml default ignored files === #
 *.annot
 *.cmo
 *.cma
