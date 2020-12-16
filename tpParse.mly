@@ -11,7 +11,7 @@ open Ast
 
 %token IF THEN ELSE
 
-(* Rajouter tous les nouveaux tokens + verifier sil faut leur donner des 'champs' *)
+(* Rajouter tous les nouveaux tokens + verifier s'il faut leur donner des 'champs' *)
 %token CLASS
 %token EXTENDS
 %token IS
@@ -44,37 +44,37 @@ open Ast
 %left TIMES DIV         /* medium precedence */
 %left UMINUS            /* highest precedence */
 
+(* Correspondance des types avec l'AST *)
+
+(* prog/progType déjà compris dans start *)
+%type <defType> definition  (* lOptDefType défini dans prog, pose un souci ?? *)
+%type <optBlocType> block
+%type <declType> declaration
+%type <lOptParamCType> param_classe (* pas sur car lOptParamCType=liste alors que param_classe=unParam.. *)
+%type <> extends  (* pas de type extends dans l'AST mais représenté par une string dans defType ?? *)
+%type <blocClasseType> block_classe
+%type <optSuperType> super (* pas sur car opt dans AST, option(..super..) dans "grammaire" *)
+%type <lDeclType> declaration_block (* pas sur car lDeclType=liste alors que declaration_block=uneDecl.. *)
+%type <> affectation_expr (* pas de type "affectation" dans l'AST ? Compris dans instrType ? *)
+%type <lOptParamMethodeType> param_methode (* pas sur car lOptParamMethodeType=liste alors que param_methode=unParam.. *)
+%type <finDeclMethodeType> fin_decl_methode
+%type <> type_retour  (* pas de type "type_de_retour" dans l'AST ? Compris dans instrType ? *)
+%type <optBlocConstr> block_constr
+%type <instrType> instruction
+%type <cibleType> cible
+%type <appelFonctionType> appel_fonction
+%type <selectionType> selection
+%type <exprOpType> exprOperator
+(* bexpr compris dans expr, opComp ? *)
+(* expr/bexpr déjà associés à expType *)
+
+
+(* Types restant dans l'AST
+type lOptDefType
+type lOptArgType
+*)
+
 %type <expType> expr bExpr
-(* %type <decl> declaration *)
-
-
-
-(*%type <list_paramCCOpt> lparamCCOpt
-%type <list_paramCC> lparamCC
-%type <param_CC> paramCC
-
-%type <list_paramMOpt> lparamMOpt
-%type <list_paramM> lparamM
-%type <param_M> paramM
-
-%type <list_argOpt> largOpt
-%type <list_arg> larg
-
-
-%type <assign_Opt> assignOpt
-%type <extends_Opt> extendsOpt
-%type <super_Opt> superOpt
-
-
-%type <decl_var> declVar
-
-%type <decl_class> declClass
-%type <bloc_class> blocClass
-%type <bloc_intern> blocIntern
-
-%type <decl_objetIsole> declObjetIsole
-
-%type <decl_constr> declConstr*)
 
 %start<Ast.progType> prog
 %%
@@ -132,8 +132,7 @@ appel_fonction: e = expr DOT x = ID args = delimited(LPAREN, separated_list(COMM
 (* declaration : x = ID ASSIGN e = expr SEMICOLON
   { { lhs = x; rhs = e; } } *)
 
-expr:
-    x = ID                        { (* To do *) }
+expr: x = ID                        { (* To do *) }
   | v = CSTE                      { (* To do *) }
   | e = delimited (LPAREN, expr, RPAREN) { (* To do *) }
   | LPAREN AS x = ID DEUXPTS e = expr RPAREN { (* To do *) }
@@ -142,8 +141,7 @@ expr:
   | NEW x = ID args = delimited(LPAREN, separated_list(COMMA, expr), RPAREN) { (* To do *) }
   | e = exprOperator { (* To do *) }
 
-exprOperator:
-  | g = expr PLUS d = expr        { (* To do *) }
+exprOperator: g = expr PLUS d = expr        { (* To do *) }
   | g = expr MINUS d = expr       { (* To do *) }
   | g = expr TIMES d = expr       { (* To do *) }
   | g = expr DIV d = expr         { (* To do *) }
@@ -152,57 +150,5 @@ exprOperator:
 
 selection: e = expr DOT x = ID { (* To do *) }
 
-bexpr :
-    g = expr op = RELOP d = expr  { (* To do *) }
+bexpr: g = expr op = RELOP d = expr  { (* To do *) }
   | e = delimited (LPAREN, bexpr, RPAREN) { (* To do *) }
-
-
-
-
-(*lparamCCOpt : l=option(lparamCC) { LParamCCOpt(l) }
-lparamCC :
-	a=paramCC { LParamCC(a) }
-	|a=paramCC COMMA b=lparamCC { LParamsCC(a,b) }
-paramCC : v=option(ID) x=ID DEUXPTS y=ID { ParamCC(v,x,y) }
-(* lparamCCOpt : l=option(list(lparamCC)) { LParamCCOpt(l) }
-lparamCC :
-	a=paramCC { LParamCC(a) }
-	|a=paramCC COMMA { LParamsCC(a) }
-paramCC : v=option(ID) x=ID DEUXPTS y=ID { ParamCC(v,x,y) }
-*)
-
-lparamMOpt : l=option(lparamM) { LParamMOpt(l) }
-lparamM :
-	a=paramM { LParam(a) }
-	|a=paramM COMMA b=lparamM { LParams(a,b) }
-paramM : x=ID DEUXPTS y=ID { ParamM(x,y) }
-
-largOpt : l=option(larg) { LArgOpt(l) }
-larg :
-	a=expr { LArg(a) }
-	|a=expr COMMA b=larg {LArgs(a,b) }
-
-
-assignOpt : ASSIGN x=expr { AssignOpt(x) }
-extendsOpt : EXTENDS x=ID { ExtendsOpt(x) }
-superOpt : DEUXPTS x=ID l=delimited(LPAREN, largOpt, RPAREN) { SuperOpt(x,l) }
-
-
-declVar : VAR x=ID DEUXPTS y=ID z=option(assignOpt) SEMICOLON { DeclVar(x,y,z) }
-
-
-declClass :
-	CLASS x=ID l=delimited(LPAREN, lparamCCOpt, RPAREN) y=option(extendsOpt) IS b=delimited(LACOLADE, blocClass, RACOLADE) { DeclClass(x,l,y,b) }
-
-blocClass :
-	a=option(list(blocIntern)) x=declConstructor b=option(list(blocIntern)) { BlocClass(a,x,y) }
-
-blocIntern :
-	x=declVar { BlocInternV(x) }
-	|x=declMethod { BlocInternM(x) }
-
-
-declObjetIsole : OBJECT x=ID IS y=delimited(LACOLADE, option(list(blocIntern)), RACOLADE) { DeclObjetIsole(x,y) }
-
-
-declConstr : DEF x=ID l=delimited(LPAREN, lparamCCOpt, RPAREN) s=option(superOpt) IS b=option(delimited(LACOLADE, list(instr), RACOLADE)) { DeclConstr(x,l,s,b) }*)
