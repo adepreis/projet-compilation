@@ -79,76 +79,91 @@ type lOptArgType
 %start<Ast.progType> prog
 %%
 prog: ld = list(definition) optBlock = delimited(LACOLADE, option(block), RACOLADE) EOF
-  { ld, optBlock }
+  { Prog(ld, optBlock) }
 
-definition: OBJECT x = ID IS lOptDecl = delimited(LACOLADE, list(declaration), RACOLADE) { (* To do *) }
+
+definition: OBJECT x = ID IS lOptDecl = delimited(LACOLADE, list(declaration), RACOLADE) { DefObj(x, lOptDecl) }
   | CLASS x = ID lParamClasse = delimited(LPAREN, separated_list(COMMA, param_classe), RPAREN)
-    optExtends = option(extends) IS blockClasse = delimited(LACOLADE, block_classe, RACOLADE) { (* To do *) }
+    optExtends = option(extends) IS blockClasse = delimited(LACOLADE, block_classe, RACOLADE) { DefClasse(x, lParamClasse, optExtends, blockClasse) }
 
-block: lInstr = nonempty_list(instruction) { (* To do *) }
-  | lDecBlock = nonempty_list(declaration_block) IS lInstr = nonempty_list(instruction) { (* To do *) }
 
-declaration: VAR x = ID DEUXPTS y = ID affectationExpr = option(affectation_expr) SEMICOLON { (* To do *) }
+declaration: VAR x = ID DEUXPTS y = ID affectationExpr = option(affectation_expr) SEMICOLON { DeclAttr(x, y, affectationExpr) }
   | DEF o = option(OVERRIDE) x = ID lParamMethode = delimited(LPAREN, separated_list(COMMA, param_methode), RPAREN) 
-    fin = fin_decl_methode { (* To do *) }
-
-param_classe: option(VAR) x = ID DEUXPTS y = ID { (* To do *) }
-
-extends: EXTENDS x = ID { (* To do *) }
-
-block_classe: decl1 = list(declaration) DEF x = ID lParamClasse = delimited(LPAREN, list(param_classe), RPAREN)
-  s = option(super) IS blockConstr = delimited(LACOLADE, option(block_constr), RACOLADE) decl2 = list(declaration) { (* To do *) }
-
-super: DEUXPTS x = ID listArguments = delimited(LPAREN, separated_list(COMMA, expr), RPAREN) { (* To do *) }
-
-declaration_block: x = ID DEUXPTS y = ID affectationExpr = option(affectation_expr) SEMICOLON { (* To do *) }
+    fin = fin_decl_methode { DeclMethode(o, x, lParamMethode, fin) }
 
 affectation_expr: ASSIGN e = expr { (* To do *) }
 
+
 param_methode: x = ID DEUXPTS y = ID { (* To do *) }
 
-fin_decl_methode: DEUXPTS x = ID ASSIGN e = expr { (* To do *) }
-  | typeRetour = option(type_retour) IS block = delimited(LACOLADE, option(block), RACOLADE) { (* To do *) }
 
-type_retour: DEUXPTS x = ID { (* To do *) }
+fin_decl_methode: DEUXPTS x = ID ASSIGN e = expr { FinDeclMethodExpr(x, e) }
+  | typeRetour = option(type_retour) IS block = delimited(LACOLADE, option(block), RACOLADE) { FinDeclMethodBloc(typeRetour, block) }
 
-block_constr: lDeclBlock = nonempty_list(declaration_block) blockConstr = option(block_constr) { (* To do *) }
-  | i = instruction blockConstr = option(block_constr) { (* To do *) }
+type_retour: DEUXPTS x = ID { ExprId x }
 
-instruction: e = expr SEMICOLON { (* To do *) }
-  | optBlock = option(block) { (* To do *) }
-  | RETURN optExpr = option(expr) SEMICOLON { (* To do *) }
-  | c = cible ASSIGN e = expr SEMICOLON { (* To do *) }
-  | IF if = bExpr THEN then = instruction ELSE else = instruction { (* To do *) }
+block: lInstr = nonempty_list(instruction) { OptBlocInstr(lInstr) }
+  | lDecBlock = nonempty_list(declaration_block) IS lInstr = nonempty_list(instruction) { OptBlocDeclAndInstr(lDecBlock, lInstr) }
 
-cible: x = ID { (* To do *) }
-  | c =  delimited(LPAREN, cible, RPAREN) { (* To do *) }
-  | LPAREN AS x = ID DEUXPTS c = cible RPAREN { (* To do *) }
-  | c = cible DOT l = separated_nonempty_list(DOT, ID) { (* To do *) }
-  | af = appel_fonction DOT l = separated_nonempty_list(DOT, ID) { (* To do *) }
+declaration_block: x = ID DEUXPTS y = ID affectationExpr = option(affectation_expr) SEMICOLON { LDecl(x, y, affectationExpr) }
 
-appel_fonction: e = expr DOT x = ID args = delimited(LPAREN, separated_list(COMMA, expr), RPAREN) { (* To do *) }
+
+param_classe: option(VAR) x = ID DEUXPTS y = ID { (* To do *) }
+
+extends: EXTENDS x = ID { ExprId x }
+
+
+block_classe: decl1 = list(declaration) DEF x = ID lParamClasse = delimited(LPAREN, list(param_classe), RPAREN)
+  s = option(super) IS blockConstr = delimited(LACOLADE, option(block_constr), RACOLADE) decl2 = list(declaration) { BlocClasse(decl1, x, lParamClasse, s, blockConstr, decl2) }
+
+super: DEUXPTS x = ID listArguments = delimited(LPAREN, separated_list(COMMA, expr), RPAREN) { OptSuper(x, listArguments) }
+
+block_constr: lDeclBlock = nonempty_list(declaration_block) blockConstr = option(block_constr) { OptBlocConstrDecl(lDeclBlock, blockConstr) }
+  | i = instruction blockConstr = option(block_constr) { OptBlocConstrInstr(i, blockConstr) }
+
+
+instruction: e = expr SEMICOLON { InstrExpr e }
+  | optBlock = option(block) { InstrBloc optBlock }
+  | RETURN optExpr = option(expr) SEMICOLON { InstrReturnExpr optExpr }
+  | c = cible ASSIGN e = expr SEMICOLON { InstrAffect(c, e) }
+  | IF iff = bExpr THEN thenn = instruction ELSE elsee = instruction { InstrITE(iff, thenn, elsee) }
+
+
+cible: x = ID { CibleId x }
+  | c =  delimited(LPAREN, cible, RPAREN) { CibleId c }
+  | LPAREN AS x = ID DEUXPTS c = cible RPAREN { CibleCast(x, c) }
+  | c = cible DOT l = separated_nonempty_list(DOT, ID) { CibleLId(c, l) }
+  | af = appel_fonction DOT l = separated_nonempty_list(DOT, ID) { CibleAppelFonction(af, l) }
+
+
+expr: x = ID { ExprId x }
+  | v = CSTE { ExprCste v }
+  | e = delimited (LPAREN, expr, RPAREN) { e }
+  | LPAREN AS x = ID DEUXPTS e = expr RPAREN { ExprCast(x,e) }
+  | s = selection { ExprSelection s }
+  | NEW x = ID args = delimited(LPAREN, separated_list(COMMA, expr), RPAREN) { ExprInstanciation(x, args) }
+  | af = appel_fonction { ExprAppelFonction af }
+  | e = exprOperator { ExprOperator e }
+
+exprOperator: g = expr PLUS d = expr { Plus(g, d) }
+  | g = expr MINUS d = expr       { Minus(g, d) }
+  | g = expr TIMES d = expr       { Times(g, d) }
+  | g = expr DIV d = expr         { Div(g, d) }
+  | PLUS e = expr                 { e }
+  | MINUS e = expr %prec UMINUS   { UMinus e }
+
+
+selection: e = expr DOT x = ID { Selection(e, x) }
+
+
+appel_fonction: e = expr DOT x = ID args = delimited(LPAREN, separated_list(COMMA, expr), RPAREN) { AppelFonction(e, x, args) }
+
 
 (* declaration : x = ID ASSIGN e = expr SEMICOLON
   { { lhs = x; rhs = e; } } *)
 
-expr: x = ID                        { (* To do *) }
-  | v = CSTE                      { (* To do *) }
-  | e = delimited (LPAREN, expr, RPAREN) { (* To do *) }
-  | LPAREN AS x = ID DEUXPTS e = expr RPAREN { (* To do *) }
-  | s = selection { (* To do *) }
-  | af = appel_fonction { (* To do *) }
-  | NEW x = ID args = delimited(LPAREN, separated_list(COMMA, expr), RPAREN) { (* To do *) }
-  | e = exprOperator { (* To do *) }
 
-exprOperator: g = expr PLUS d = expr        { (* To do *) }
-  | g = expr MINUS d = expr       { (* To do *) }
-  | g = expr TIMES d = expr       { (* To do *) }
-  | g = expr DIV d = expr         { (* To do *) }
-  | PLUS e = expr                 { (* To do *) }
-  | MINUS e = expr %prec UMINUS   { (* To do *) }
 
-selection: e = expr DOT x = ID { (* To do *) }
 
 bexpr: g = expr op = RELOP d = expr  { (* To do *) }
   | e = delimited (LPAREN, bexpr, RPAREN) { (* To do *) }
