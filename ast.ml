@@ -47,27 +47,25 @@ type decl = {
   }
 *)
 
-type progType = Prog of lOptDefType option*optBlocType
+type progType = Prog of defType list option *optBlocType (* Type du programme *)
 
-
-type lOptDefType = LOptDef of defType*lOptDefType option
 
 type defType =
 DefObj of string*declType list option
-|DefClasse of string*lOptParamCType option * string option*blocClasseType
+|DefClasse of string*paramCType list option * extendsType option*blocClasseType
 
 
 
 type declType =
 DeclAttr of string*string*exprType option
-|DeclMethode of string*string*lOptParamMethodeType option *finDeclMethodeType
+|DeclMethode of string*string*paramMethodeType option *finDeclMethodeType
+
+type affectationType =
+Affectation of exprType
 
 
-
-
-type lOptParamMethodeType =
-LOptParamMethode of string*string
-|LOptParamsMethode of string*string*lOptParamMethodeType option
+type paramMethodeType = (* à ne pas confondre avec paramCType, meme définition mais type différent *)
+ParamMethode of string*string
 
 
 
@@ -77,27 +75,32 @@ FinDeclMethodExpr of string*exprType
 
 type optBlocType =
 OptBlocInstr of instrType list
-|OptBlocDeclAndInstr of lDeclType list*instrType list
+|OptBlocDeclAndInstr of declVarType list*instrType list
 
-type lDeclType = LDecl of string*string*exprType option (* ce sont des variables locales *)
+type retourType =
+TypeRetour of string
 
 
-
-type lOptParamCType =
-LOptParamC of string*string
-|LOptParamsC of string*string*lOptParamCType
+type declVarType = DeclVar of string*string*exprType option (* ce sont des variables locales *)
 
 
 
-type blocClasseType = BlocClasse of declType list option *string*lOptParamCType option *optSuperType option *optBlocConstr option *declType list option
+type paramCType =
+ParamC of string*string
 
-type optSuperType = OptSuper of string*lOptArgType option
 
-type lOptArgType = LOptArg of exprType | LOptArgs of exprType*lOptArgType option
+type extendsType = Extends of string
+
+
+
+type blocClasseType = BlocClasse of declType list option *string*paramCType list option *optSuperType option *optBlocConstrType option *declType list option
+
+type optSuperType = OptSuper of string*exprType list option
+
 
 type optBlocConstrType = 
-OptBlocConstrDecl of lDeclType * optBlocConstr option
-|OptBlocConstrInstr of instrType * optBlocConstr option
+OptBlocConstrDecl of declVarType list * optBlocConstrType option
+|OptBlocConstrInstr of instrType * optBlocConstrType option
 
 
 
@@ -117,7 +120,7 @@ type cibleType =
 CibleId of string
 |CibleCast of string*cibleType
 |CibleLId of cibleType*string list 
-|CibleAppelFonction of exprType*string*lOptArgType option* string list
+|CibleAppelFonction of exprType*string*exprType list option* string list
 
 
 type exprType =
@@ -125,7 +128,7 @@ ExprId of string
 |ExprCste of int
 |ExprCast of string*exprType
 |ExprSelection of selectionType
-|ExprInstanciation of string*lOptArgType option
+|ExprInstanciation of string*exprType list option
 |ExprAppelFonction of appelFonctionType(*exprType*string*lOptArgType option*)* string list
 |ExprOperator of exprOpType
 
@@ -143,7 +146,7 @@ type opCompType =
 
 type selectionType = Selection of exprType*string
 
-type appelFonctionType = AppelFonction of exprType*string*lOptArgType option
+type appelFonctionType = AppelFonction of exprType*string*exprType list option
 
 
 

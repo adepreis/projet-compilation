@@ -87,3 +87,7 @@ with debug mode (step-by-step mode, setting breakpoints, visualize the memory co
 ## Documentation
 
 In the `/doc` folder, you can find ...
+
+## Information for Rémy
+To get tpParse.conflicts : "menhir --lalr --explain tpParse.mly"
+To get tpParse.automaton : "menhir --dump tpParse.mly"

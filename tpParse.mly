@@ -4,7 +4,7 @@ open Ast
 
 %token <string> ID
 %token <int> CSTE
-%token <Ast.opComp> RELOP /* je ne comprends pas pourquoi ce serait pas <opComp> tout court... */
+%token <Ast.opCompType> RELOP
 %token PLUS MINUS TIMES DIV
 %token LPAREN RPAREN SEMICOLON
 %token ASSIGN
@@ -13,7 +13,7 @@ open Ast
 
 /* Rajouter tous les nouveaux tokens + verifier s'il faut leur donner des 'champs' */
 %token CLASS
-%token EXTENDS
+%token <bool> EXTENDS
 %token IS
 %token VAR
 %token DEF
@@ -39,6 +39,8 @@ open Ast
 
 %token EOF
 
+%nonassoc DEF
+
 %right ELSE
 %left PLUS MINUS        /* lowest precedence */
 %left TIMES DIV         /* medium precedence */
@@ -47,32 +49,24 @@ open Ast
 /* Correspondance des types avec l'AST */
 
 /* prog/progType déjà compris dans start */
-%type <defType> definition  /* lOptDefType défini dans prog, pose un souci ?? */
+%type <defType> definition
 %type <optBlocType> block
 %type <declType> declaration
-%type <lOptParamCType> param_classe /* pas sur car lOptParamCType=liste alors que param_classe=unParam.. */
-%type <> extends  /* pas de type extends dans l'AST mais représenté par une string dans defType ?? */
+%type <paramCType> param_classe
+%type <extendsType> extends
 %type <blocClasseType> block_classe
-%type <optSuperType> super /* pas sur car opt dans AST, option(..super..) dans "grammaire" */
-%type <lDeclType> declaration_block /* pas sur car lDeclType=liste alors que declaration_block=uneDecl.. */
-%type <> affectation_expr /* pas de type "affectation" dans l'AST ? Compris dans instrType ? */
-%type <lOptParamMethodeType> param_methode /* pas sur car lOptParamMethodeType=liste alors que param_methode=unParam.. */
+%type <optSuperType> super
+%type <declVarType> declarationVar_block
+%type <affectationType> affectation_expr
+%type <paramMethodeType> param_methode
 %type <finDeclMethodeType> fin_decl_methode
-%type <> type_retour  /* pas de type "type_de_retour" dans l'AST ? Compris dans instrType ? */
+%type <retourType> type_retour 
 %type <optBlocConstr> block_constr
 %type <instrType> instruction
 %type <cibleType> cible
 %type <appelFonctionType> appel_fonction
 %type <selectionType> selection
 %type <exprOpType> exprOperator
-/* bexpr compris dans expr, opComp ? */
-/* expr/bexpr déjà associés à expType */
-
-
-/* Types restant dans l'AST
-type lOptDefType
-type lOptArgType
-*/
 
 %type <expType> expr bExpr
 
@@ -91,26 +85,26 @@ declaration: VAR x = ID DEUXPTS y = ID affectationExpr = option(affectation_expr
   | DEF o = option(OVERRIDE) x = ID lParamMethode = delimited(LPAREN, separated_list(COMMA, param_methode), RPAREN) 
     fin = fin_decl_methode { DeclMethode(o, x, lParamMethode, fin) }
 
-affectation_expr: ASSIGN e = expr { (* To do *) }
+affectation_expr: ASSIGN e = expr { Affectation e }
 
 
-param_methode: x = ID DEUXPTS y = ID { (* To do *) }
+param_methode: x = ID DEUXPTS y = ID { ParamMethode (x,y) }
 
 
 fin_decl_methode: DEUXPTS x = ID ASSIGN e = expr { FinDeclMethodExpr(x, e) }
   | typeRetour = option(type_retour) IS block = delimited(LACOLADE, option(block), RACOLADE) { FinDeclMethodBloc(typeRetour, block) }
 
-type_retour: DEUXPTS x = ID { ExprId x }
+type_retour: DEUXPTS x = ID { TypeRetour x }
 
 block: lInstr = nonempty_list(instruction) { OptBlocInstr(lInstr) }
-  | lDecBlock = nonempty_list(declaration_block) IS lInstr = nonempty_list(instruction) { OptBlocDeclAndInstr(lDecBlock, lInstr) }
+  | lDecBlock = nonempty_list(declarationVar_block) IS lInstr = nonempty_list(instruction) { OptBlocDeclAndInstr(lDecBlock, lInstr) }
 
-declaration_block: x = ID DEUXPTS y = ID affectationExpr = option(affectation_expr) SEMICOLON { LDecl(x, y, affectationExpr) }
+declarationVar_block: x = ID DEUXPTS y = ID affectationExpr = option(affectation_expr) SEMICOLON { DeclVar(x, y, affectationExpr) }
 
 
-param_classe: option(VAR) x = ID DEUXPTS y = ID { (* To do *) }
+param_classe: option(VAR) x = ID DEUXPTS y = ID { ParamC(x, y) }
 
-extends: EXTENDS x = ID { ExprId x }
+extends: EXTENDS x = ID { Extends x }
 
 
 block_classe: decl1 = list(declaration) DEF x = ID lParamClasse = delimited(LPAREN, list(param_classe), RPAREN)
@@ -118,15 +112,15 @@ block_classe: decl1 = list(declaration) DEF x = ID lParamClasse = delimited(LPAR
 
 super: DEUXPTS x = ID listArguments = delimited(LPAREN, separated_list(COMMA, expr), RPAREN) { OptSuper(x, listArguments) }
 
-block_constr: lDeclBlock = nonempty_list(declaration_block) blockConstr = option(block_constr) { OptBlocConstrDecl(lDeclBlock, blockConstr) }
+block_constr: lDeclBlock = nonempty_list(declarationVar_block) blockConstr = option(block_constr) { OptBlocConstrDecl(lDeclBlock, blockConstr) }
   | i = instruction blockConstr = option(block_constr) { OptBlocConstrInstr(i, blockConstr) }
 
 
 instruction: e = expr SEMICOLON { InstrExpr e }
-  | optBlock = option(block) { InstrBloc optBlock }
+  | block = delimited(LACOLADE, option(block), RACOLADE) { InstrBloc block }
   | RETURN optExpr = option(expr) SEMICOLON { InstrReturnExpr optExpr }
   | c = cible ASSIGN e = expr SEMICOLON { InstrAffect(c, e) }
-  | IF iff = bExpr THEN thenn = instruction ELSE elsee = instruction { InstrITE(iff, thenn, elsee) }
+  | IF si = bExpr THEN alors = instruction ELSE sinon = instruction { InstrITE(si, alors, sinon) }
 
 
 cible: x = ID { CibleId x }
@@ -159,11 +153,6 @@ selection: e = expr DOT x = ID { Selection(e, x) }
 appel_fonction: e = expr DOT x = ID args = delimited(LPAREN, separated_list(COMMA, expr), RPAREN) { AppelFonction(e, x, args) }
 
 
-/* declaration : x = ID ASSIGN e = expr SEMICOLON
-  { { lhs = x; rhs = e; } } */
-
-
-
-
-bexpr: g = expr op = RELOP d = expr  { (* To do *) }
-  | e = delimited (LPAREN, bexpr, RPAREN) { (* To do *) }
+bExpr :
+    g = expr op = RELOP d = expr  { Comp(op, g, d) }
+  | e = delimited (LPAREN, bExpr, RPAREN) { e }
