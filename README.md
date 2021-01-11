@@ -76,10 +76,10 @@ with debug mode (step-by-step mode, setting breakpoints, visualize the memory co
 
 ### Contribution of each member of the group
 
-- Lucas B. : grammar, test files
-- Antonin D. : grammar, test files
-- Rémy T. : grammar, AST
-- Tri-Man William V. : grammar, AST
+- Lucas B. : grammar, parser, test files
+- Antonin D. : grammar, parser, test files
+- Rémy T. : grammar, AST, lexical analyser
+- Tri-Man William V. : grammar, AST, lexical analyser
 
 
 ---
@@ -88,6 +88,12 @@ with debug mode (step-by-step mode, setting breakpoints, visualize the memory co
 
 In the `/doc` folder, you can find ...
 
-## Information for Rémy
-To get tpParse.conflicts : "menhir --lalr --explain tpParse.mly"
-To get tpParse.automaton : "menhir --dump tpParse.mly"
+## Debugging commands
+
+Generate the `tpParse.conflicts` file that explains all the conflicts :
+
+`menhir --lalr --explain tpParse.mly`
+
+Generate the `tpParse.automaton` file that describes the automaton states :
+
+`menhir --dump tpParse.mly`
