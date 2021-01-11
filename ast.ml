@@ -52,13 +52,18 @@ type progType = Prog of defType list option *optBlocType (* Type du programme *)
 
 type defType =
 DefObj of string*declType list option
-|DefClasse of string*paramCType list option * extendsType option*blocClasseType
+|DefClasse of string*paramCType list option * extendsType option* declType list
 
 
 
-type declType =
-DeclAttr of string*string*exprType option
-|DeclMethode of string*string*paramMethodeType option *finDeclMethodeType
+type declObjetType =
+DeclAttrObjet of string*string*exprType option
+|DeclMethodeObjet of string*string*paramMethodeType option *finDeclMethodeType
+
+type declClasseType =
+DeclAttrClasse of string*string*exprType option
+|DeclMethodeClasse of string*string*paramMethodeType option *finDeclMethodeType
+|DeclConstrClasse of string * paramCType list option * optSuperType option * optBlocConstrType option
 
 type affectationType =
 Affectation of exprType
@@ -93,8 +98,6 @@ type extendsType = Extends of string
 
 
 
-type blocClasseType = BlocClasse of declType list option *string*paramCType list option *optSuperType option *optBlocConstrType option *declType list option
-
 type optSuperType = OptSuper of string*exprType list option
 
 
@@ -119,32 +122,33 @@ ExprReturnExpr of exprType
 type cibleType =
 CibleId of string
 |CibleCast of string*cibleType
-|CibleLId of cibleType*string list 
+|CibleLId of cibleType*cibleType 
 |CibleAppelFonction of exprType*string*exprType list option* string list
 
 
 type exprType =
 ExprId of string
 |ExprCste of int
+|ExprString of string
 |ExprCast of string*exprType
 |ExprSelection of selectionType
 |ExprInstanciation of string*exprType list option
 |ExprAppelFonction of appelFonctionType(*exprType*string*lOptArgType option*)* string list
 |ExprOperator of exprOpType
-
-type exprOpType =
-Plus of exprType*exprType
+| Plus of exprType*exprType
 | Minus of exprType*exprType
 | Times of exprType*exprType
 | Div of exprType*exprType
+| UPlus of exprType
 | UMinus of exprType
 | Comp of opCompType*exprType*exprType
+
 
 type opCompType =
   Eq | Neq | Lt | Le | Gt | Ge
 
 
-type selectionType = Selection of exprType*string
+type selectionType = Selection of exprType*cibleType
 
 type appelFonctionType = AppelFonction of exprType*string*exprType list option
 
