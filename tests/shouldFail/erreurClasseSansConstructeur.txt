@@ -1,0 +1,13 @@
+class A() is {
+	var name: String;
+
+	/* La classe doit avoir un unique constructeur */
+}
+
+{
+    a:A := new A();
+
+    is
+
+    a.name.println();
+}

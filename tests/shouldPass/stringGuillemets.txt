@@ -1,0 +1,4 @@
+{
+	"Debut du programme".println();
+	"Fin du programme".println();
+}

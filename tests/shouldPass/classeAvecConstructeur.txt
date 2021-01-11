@@ -1,7 +1,9 @@
 class A() is {
 	var name: String;
-
-	/* La classe doit un unique constructeur */
+	
+	def A() is{
+		
+    }
 }
 
 {

@@ -1,0 +1,36 @@
+{
+	/* Intanciations des classes de base */
+	a : Integer := 12;
+	b : String := "douze";
+
+is
+
+	/* Fonctions de la classe de base Integer */
+
+	if a <> 12 then { "a != 12".println(); } else { "a == 12".println(); }
+
+	if a = 12 then { "a == 12".println(); } else { "a != 12".println(); }
+
+	if a < 12 then { "a < 12".println(); } else { "a >= 12".println(); }
+	
+	if a <= 12 then { "a <= 12".println(); } else { "a > 12".println(); }
+
+	if a > 12 then { "a > 12".println(); } else { "a <= 12".println(); }
+	
+	if a >= 12 then { "a >= 12".println(); } else { "a < 12".println(); }
+
+	c : String := a.toString();
+
+
+	/* Fonctions de la classe de base String */
+	
+	b.print();
+	b := "12";
+	b.println();
+	
+	c.println();
+
+	(b&c).println();
+
+	"\nDone".println();
+}

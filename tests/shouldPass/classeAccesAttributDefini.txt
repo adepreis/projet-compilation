@@ -1,0 +1,14 @@
+class A() is {
+   	var name : String;
+    def A() is{
+            
+    }
+}
+
+{
+    a:A := new A();
+    
+    is
+
+    a.name;	/* name est un attribut de A */
+}

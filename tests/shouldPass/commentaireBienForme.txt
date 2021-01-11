@@ -1,0 +1,12 @@
+{
+	cpt : Integer := 12;
+is
+	"Debut du programme".println();
+
+	cpt := cpt + 1;
+
+  	/* début d'un commentaire
+      fin du commentaire */
+
+  	"\nDone".println();
+}

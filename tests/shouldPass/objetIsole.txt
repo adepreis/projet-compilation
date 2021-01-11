@@ -1,0 +1,10 @@
+object CptPoint is {
+	var next : Integer := 0;
+	def incr() : Integer is { this.next := this.next + 1; result := this.next; }
+	def howMany() : Integer := this.next
+}
+
+{
+	CptPoint.incr(); /* result n'est pas stocké mais appel devrait marcher.. (?) */
+	CptPoint.howMany().toString().println();
+}

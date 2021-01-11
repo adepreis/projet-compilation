@@ -1,0 +1,15 @@
+class A() is {
+	var v : String;
+
+	def A() : A() is { v := "hello"; }
+	
+	def f(x: Integer, y: Integer) : Integer := (2*x + 3*y)
+}
+
+{
+	a: A := new A();
+	
+	is
+	
+	a.f(5, 9);
+}

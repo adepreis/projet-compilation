@@ -1,0 +1,30 @@
+class A() is {
+    var v : String;
+
+    def A() : A() is { v := "hello"; }
+  
+    def f(x: Integer, y: Integer) : Integer := (2*x + 3*y)
+}
+
+class A2() extends A is {
+    var v : String; /* masque le champ v de la classe A */
+
+    def A2() : A() is { v := "hello"; }
+  
+    def override f(x: Integer, y: Integer) is { "A2::f()\"n".print(); }
+
+    def g() is {
+        this.v := "world";
+    }
+
+}
+
+{
+    a: A := new A();
+    a2: A2 := new A2();
+ is
+    a.f(5, 9);
+    a2.f(5, 9);
+    a2.g();
+    a := a2;
+}

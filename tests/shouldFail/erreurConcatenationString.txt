@@ -1,0 +1,5 @@
+{
+	h : String := "hello";
+is
+	(h&).println();	/* concaténation avec rien */
+}
