@@ -37,6 +37,7 @@ let _ =
 }
 
 let lettre = ['A'-'Z' 'a'-'z']
+let lettreMaj = ['A'-'Z']
 (* Partie VII : "Les noms de classes et d’objets isolés doivent débuter par une majuscule ;
   tous les autres identificateurs doivent débuter par une minuscule.
   Les mots-clefs sont en minuscules" *)
@@ -71,13 +72,16 @@ rule
 and
  token = parse
       lettre LC * as id
-      { (* id contient le texte reconnu. On verifie s'il s'agit d'un mot-clef
+      {
+      	(* id contient le texte reconnu. On verifie s'il s'agit d'un mot-clef
          * auquel cas on renvoie le token associe. Sinon on renvoie Id avec le
          * texte reconnu en valeur 
          *)
         try
           Hashtbl.find keyword_table id
-        with Not_found -> ID id
+        with Not_found -> if (String.get id 0 != lettreMaj)	(* Si la première lettre est une maj, on différencie ID et IDC *)
+        				  then ID id
+        				  else IDC id
       }
   | [' ''\t''\r']+  { (* consommer les delimiteurs, ne pas les transmettre
                        * et renvoyer ce que renverra un nouvel appel a
