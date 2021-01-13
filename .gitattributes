@@ -1,0 +1,2 @@
+# Ignore interpreter folder from github linguist stats (not written by the team) #
+interp/* linguist-generated
