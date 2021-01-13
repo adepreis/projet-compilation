@@ -34,26 +34,19 @@ open Ast
 %token DOT
 
 
-/* Il faudra pour block_  */
-
-/* utilise pour donner une precedence maximale au - unaire
-* L'analyseur lexical ne renvoie jamais ce token !
-*/
-%token UMINUS
-
 %token EOF
 
-
+%nonassoc RELOP
 %left PLUS MINUS        /* lowest precedence */
 %left TIMES DIV         /* medium precedence */
-%left UMINUS  UPLUS     /* highest precedence */
+%left High     /* highest precedence */
 %right DOT
 
 /* Correspondance des types avec l'AST */
 
 /* prog/progType déjà compris dans start */
 %type <defType> definition
-%type <optBlocType> block
+%type <blocType> block
 %type <declObjetType> declaration_objet
 %type <declClasseType> declaration_classe
 %type <paramCType> param_classe
@@ -64,7 +57,6 @@ open Ast
 %type <paramMethodeType> param_methode
 %type <finDeclMethodeType> fin_decl_methode
 %type <retourType> type_retour 
-%type <optBlocConstr> block_constr
 %type <instrType> instruction
 //%type <cibleType> cible
 //%type <appelFonctionType> appel_fonction
@@ -72,8 +64,8 @@ open Ast
 
 %start<Ast.progType> prog
 %%
-prog: ld = list(definition) optBlock = delimited(LACOLADE, option(block), RACOLADE) EOF
-  { Prog(ld, optBlock) }
+prog: ld = list(definition) bloc = block EOF
+  { Prog(ld, bloc) }
 
 
 definition: OBJECT x = IDC IS lOptDecl = delimited(LACOLADE, list(declaration_objet), RACOLADE) { DefObj(x, lOptDecl) }
@@ -85,23 +77,21 @@ declaration_objet: VAR x = ID DEUXPTS y = IDC affectationExpr = option(affectati
     fin = fin_decl_methode { DeclMethodeObjet(o, x, lParamMethode, fin) }
 
 declaration_classe: VAR x = ID DEUXPTS y = IDC affectationExpr = option(affectation_expr) SEMICOLON { DeclAttrClasse(x, y, affectationExpr) }
-  | DEF o = option(OVERRIDE) x = ID lParamMethode = delimited(LPAREN, separated_list(COMMA, param_methode), RPAREN) 
+  | DEF o = option(OVERRIDE) x = ID lParamMethode = delimited(LPAREN, separated_list(COMMA, param_methode), RPAREN) // to do : regarder photos, considérer une meme regle d ast pour les 3
     fin = fin_decl_methode { DeclMethodeClasse(o, x, lParamMethode, fin) }
-  | DEF x = IDC lParamClasse = delimited(LPAREN, list(param_classe), RPAREN) s = option(super) IS blockConstr = delimited(LACOLADE, option(block_constr), RACOLADE) { DeclConstrClasse(x, lParamClasse, s, blockConstr) }
+  | DEF x = IDC lParamClasse = delimited(LPAREN, list(param_classe), RPAREN) s = option(super) IS bloc = block { DeclConstrClasse(x, lParamClasse, s, bloc) }
 
 affectation_expr: ASSIGN e = expr { Affectation e }
 
-
 param_methode: x = ID DEUXPTS y = IDC { ParamMethode (x,y) }
 
-
 fin_decl_methode: DEUXPTS x = IDC ASSIGN e = expr { FinDeclMethodExpr(x, e) }
-  | typeRetour = option(type_retour) IS block = delimited(LACOLADE, option(block), RACOLADE) { FinDeclMethodBloc(typeRetour, block) }
+  | typeRetour = option(type_retour) IS bloc = block { FinDeclMethodBloc(typeRetour, bloc) }
 
 type_retour: DEUXPTS x = IDC { TypeRetour x }
 
-block: lInstr = nonempty_list(instruction) { OptBlocInstr(lInstr) }
-  | lDecBlock = nonempty_list(declarationVar_block) IS lInstr = nonempty_list(instruction) { OptBlocDeclAndInstr(lDecBlock, lInstr) }
+block: LACOLADE lInstr = list(instruction) RACOLADE { BlocInstr(lInstr) }
+  | LACOLADE lDecBlock = nonempty_list(declarationVar_block) IS lInstr = nonempty_list(instruction) RACOLADE { BlocDeclAndInstr(lDecBlock, lInstr) }
 
 declarationVar_block: x = ID DEUXPTS y = IDC affectationExpr = option(affectation_expr) SEMICOLON { DeclVar(x, y, affectationExpr) }
 
@@ -113,45 +103,41 @@ extends: EXTENDS x = IDC { Extends x }
 
 super: DEUXPTS x = IDC listArguments = delimited(LPAREN, separated_list(COMMA, expr), RPAREN) { OptSuper(x, listArguments) }
 
-block_constr: lDeclBlock = nonempty_list(declarationVar_block) blockConstr = option(block_constr) { OptBlocConstrDecl(lDeclBlock, blockConstr) }
-  | i = instruction blockConstr = option(block_constr) { OptBlocConstrInstr(i, blockConstr) }
-
 
 instruction: e = expr SEMICOLON { InstrExpr e }
-  | block = delimited(LACOLADE, option(block), RACOLADE) { InstrBloc block }
+  | bloc = block { InstrBloc bloc }
   | RETURN optExpr = option(expr) SEMICOLON { InstrReturnExpr optExpr }
-//  | c = cible ASSIGN e = expr SEMICOLON { InstrAffect(c, e) }
+  | c = cible ASSIGN e = expr SEMICOLON { InstrAffect(c, e) }
   | IF si = expr THEN alors = instruction ELSE sinon = instruction { InstrITE(si, alors, sinon) }
 
-// TO DO : faire appel_fonction et la dernière regle ci-dessous
-/*cible: x = ID { CibleId x }
-  | c =  delimited(LPAREN, cible, RPAREN) { CibleId c }
-  | LPAREN AS x = ID DEUXPTS c = cible RPAREN { CibleCast(x, c) }
-  | c = cible DOT ci = cible { CibleLId(c, ci) }
-  | af = appel_fonction DOT l = separated_nonempty_list(DOT, ID) { CibleAppelFonction(af, l) }
-*/
+cible: x = ID { CibleId x }
+    | e = expr DOT x = ID { CibleLId(e, x) }
+//  | c =  delimited(LPAREN, cible, RPAREN) { CibleId c } // PAS TRES UTILE
+//  | LPAREN AS x = IDC DEUXPTS c = cible RPAREN { CibleCast(x, c) } // A ENLEVER SELON PROF
+
 
 
 expr: x = ID { ExprId x }
   | v = CSTE { ExprCste v }
   | s = STRING {ExprString s}
   | e = delimited (LPAREN, expr, RPAREN) { e }
-  | LPAREN AS x = ID DEUXPTS e = expr RPAREN { ExprCast(x,e) }
-//  | s = selection { ExprSelection s }
+  | LPAREN AS x = IDC DEUXPTS e = expr RPAREN { ExprCast(x,e) }
+  | s = selection { ExprSelection s }
+
+
+
   | NEW x = IDC args = delimited(LPAREN, separated_list(COMMA, expr), RPAREN) { ExprInstanciation(x, args) }
-  //| af = appel_fonction { ExprAppelFonction af }
+  | e = expr DOT x = ID args = delimited(LPAREN, separated_list(COMMA, expr), RPAREN) { ExprAppelFonction(e, x, args) }
+
+
+
   | g = expr op = RELOP d = expr  { Comp(op, g, d) }
   | g = expr PLUS d = expr { Plus(g, d) }
   | g = expr MINUS d = expr       { Minus(g, d) }
   | g = expr TIMES d = expr       { Times(g, d) }
   | g = expr DIV d = expr         { Div(g, d) }
-  | PLUS e = expr  %prec UPLUS    { UPlus e }
-  | MINUS e = expr %prec UMINUS   { UMinus e }
+  | PLUS e = expr  %prec High     { UPlus e } // vérifier partie droite
+  | MINUS e = expr %prec High     { UMinus e } // vérifier partie droite
 
 
-// TO DO : cible appel_fonction selection à faire (responsables des reduce/reduce)
-
-//selection: e = expr DOT c = cible { Selection(e, x) }
-
-
-//appel_fonction: e = expr DOT x = ID args = delimited(LPAREN, separated_list(COMMA, expr), RPAREN) { AppelFonction(e, x, args) }
+selection: e = expr DOT x = ID { Selection(e, x) }

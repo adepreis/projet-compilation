@@ -47,48 +47,25 @@ type decl = {
   }
 *)
 
-type progType = Prog of defType list option *optBlocType (* Type du programme *)
+type opCompType =
+  Eq | Neq | Lt | Le | Gt | Ge
 
-
-type defType =
-DefObj of string*declType list option
-|DefClasse of string*paramCType list option * extendsType option* declType list
-
-
-
-type declObjetType =
-DeclAttrObjet of string*string*exprType option
-|DeclMethodeObjet of string*string*paramMethodeType option *finDeclMethodeType
-
-type declClasseType =
-DeclAttrClasse of string*string*exprType option
-|DeclMethodeClasse of string*string*paramMethodeType option *finDeclMethodeType
-|DeclConstrClasse of string * paramCType list option * optSuperType option * optBlocConstrType option
-
-type affectationType =
-Affectation of exprType
-
-
-type paramMethodeType = (* à ne pas confondre avec paramCType, meme définition mais type différent *)
-ParamMethode of string*string
-
-
-
-type finDeclMethodeType =
-FinDeclMethodExpr of string*exprType
-|FinDeclMethodBloc of string option *optBlocType option
-
-type optBlocType =
-OptBlocInstr of instrType list
-|OptBlocDeclAndInstr of declVarType list*instrType list
-
-type retourType =
-TypeRetour of string
-
-
-type declVarType = DeclVar of string*string*exprType option (* ce sont des variables locales *)
-
-
+type exprType =
+ExprId of string
+|ExprCste of int
+|ExprString of string
+|ExprCast of string*exprType
+|ExprSelection of selectionType
+|ExprInstanciation of string*exprType list (*option*)
+|ExprAppelFonction of exprType*string*exprType list (*option*)
+| Plus of exprType*exprType
+| Minus of exprType*exprType
+| Times of exprType*exprType
+| Div of exprType*exprType
+| UPlus of exprType
+| UMinus of exprType
+| Comp of opCompType*exprType*exprType
+and selectionType = Selection of exprType*string
 
 type paramCType =
 ParamC of string*string
@@ -97,60 +74,96 @@ ParamC of string*string
 type extendsType = Extends of string
 
 
-
-type optSuperType = OptSuper of string*exprType list option
-
-
-type optBlocConstrType = 
-OptBlocConstrDecl of declVarType list * optBlocConstrType option
-|OptBlocConstrInstr of instrType * optBlocConstrType option
+type optSuperType = OptSuper of string*exprType list (*option*)
 
 
 
 
-type instrType =
-InstrExpr of exprType
-|InstrBloc of optBlocType
-|InstrReturnExpr of (* exprReturnType *) exprType option
-|InstrAffect of cibleType*exprType
-|InstrITE of exprType*instrType*instrType
+type cibleType =
+CibleId of string
+|CibleLId of exprType*string
+(*|CibleCast of string*cibleType // A ENLEVER SELON PROF *)
 
 (* type exprReturnType =
 ExprReturnExpr of exprType
 | ExprReturnId of string  *) (* SI InstrReturn of None, on renvoie result (lire p2 enonce) #Remy *)
 
-type cibleType =
-CibleId of string
-|CibleCast of string*cibleType
-|CibleLId of cibleType*cibleType 
-|CibleAppelFonction of exprType*string*exprType list option* string list
+type declVarType = DeclVar of string*string*exprType option (* ce sont des variables locales *)
+
+type instrType =
+InstrExpr of exprType
+|InstrBloc of blocType
+|InstrReturnExpr of (* exprReturnType *) exprType option
+|InstrAffect of cibleType*exprType
+|InstrITE of exprType*instrType*instrType
+and blocType =
+BlocInstr of instrType list
+|BlocDeclAndInstr of declVarType list*instrType list
+
+type retourType =
+TypeRetour of string
 
 
-type exprType =
-ExprId of string
-|ExprCste of int
-|ExprString of string
-|ExprCast of string*exprType
-|ExprSelection of selectionType
-|ExprInstanciation of string*exprType list option
-|ExprAppelFonction of appelFonctionType(*exprType*string*lOptArgType option*)* string list
-|ExprOperator of exprOpType
-| Plus of exprType*exprType
-| Minus of exprType*exprType
-| Times of exprType*exprType
-| Div of exprType*exprType
-| UPlus of exprType
-| UMinus of exprType
-| Comp of opCompType*exprType*exprType
+
+type finDeclMethodeType =
+FinDeclMethodExpr of string*exprType
+|FinDeclMethodBloc of retourType option *blocType
+
+type affectationType =
+Affectation of exprType
 
 
-type opCompType =
-  Eq | Neq | Lt | Le | Gt | Ge
+type paramMethodeType = 
+ParamMethode of string*string (* à ne pas confondre avec paramCType, meme définition mais type différent *)
+
+type declObjetType =
+DeclAttrObjet of string*string*exprType option
+|DeclMethodeObjet of string*string*paramMethodeType option *finDeclMethodeType
+
+type declClasseType =
+DeclAttrClasse of string*string*exprType option
+|DeclMethodeClasse of string option*string*paramMethodeType list *finDeclMethodeType (* remplacer override par un booléen ça sera plus pratique à gérer (boption) *)
+|DeclConstrClasse of string * paramCType list option * optSuperType option * blocType
+
+type defType =
+DefObj of string*declObjetType list option
+|DefClasse of string*paramCType list option * extendsType option* declClasseType list
 
 
-type selectionType = Selection of exprType*cibleType
+type progType = Prog of defType list option *blocType (* Type du programme *)
 
-type appelFonctionType = AppelFonction of exprType*string*exprType list option
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
