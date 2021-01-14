@@ -15,7 +15,7 @@ open Ast
 
 /* Rajouter tous les nouveaux tokens + verifier s'il faut leur donner des 'champs' */
 %token CLASS
-%token <bool> EXTENDS
+%token EXTENDS
 %token IS
 %token VAR
 %token DEF
@@ -32,6 +32,9 @@ open Ast
 %token DEUXPTS
 %token COMMA
 %token DOT
+
+%token BEGIN
+%token END
 
 
 %token EOF
@@ -73,13 +76,14 @@ definition: OBJECT x = IDC IS lOptDecl = delimited(LACOLADE, list(declaration_ob
     optExtends = option(extends) IS blockClasse = delimited(LACOLADE, list(declaration_classe), RACOLADE) { DefClasse(x, lParamClasse, optExtends, blockClasse) }
 
 declaration_objet: VAR x = ID DEUXPTS y = IDC affectationExpr = option(affectation_expr) SEMICOLON { DeclAttrObjet(x, y, affectationExpr) }
-  | DEF o = option(OVERRIDE) x = ID lParamMethode = delimited(LPAREN, separated_list(COMMA, param_methode), RPAREN) 
+  | DEF o = boption(OVERRIDE) x = ID lParamMethode = delimited(LPAREN, separated_list(COMMA, param_methode), RPAREN) 
     fin = fin_decl_methode { DeclMethodeObjet(o, x, lParamMethode, fin) }
 
 declaration_classe: VAR x = ID DEUXPTS y = IDC affectationExpr = option(affectation_expr) SEMICOLON { DeclAttrClasse(x, y, affectationExpr) }
-  | DEF o = option(OVERRIDE) x = ID lParamMethode = delimited(LPAREN, separated_list(COMMA, param_methode), RPAREN) // to do : regarder photos, considérer une meme regle d ast pour les 3
+  | DEF o = boption(OVERRIDE) x = ID lParamMethode = delimited(LPAREN, separated_list(COMMA, param_methode), RPAREN) (* to do : regarder photos, considérer une meme regle d ast pour les 3 *)
     fin = fin_decl_methode { DeclMethodeClasse(o, x, lParamMethode, fin) }
   | DEF x = IDC lParamClasse = delimited(LPAREN, list(param_classe), RPAREN) s = option(super) IS bloc = block { DeclConstrClasse(x, lParamClasse, s, bloc) }
+
 
 affectation_expr: ASSIGN e = expr { Affectation e }
 
@@ -90,16 +94,18 @@ fin_decl_methode: DEUXPTS x = IDC ASSIGN e = expr { FinDeclMethodExpr(x, e) }
 
 type_retour: DEUXPTS x = IDC { TypeRetour x }
 
+
 block: LACOLADE lInstr = list(instruction) RACOLADE { BlocInstr(lInstr) }
   | LACOLADE lDecBlock = nonempty_list(declarationVar_block) IS lInstr = nonempty_list(instruction) RACOLADE { BlocDeclAndInstr(lDecBlock, lInstr) }
+
 
 declarationVar_block: x = ID DEUXPTS y = IDC affectationExpr = option(affectation_expr) SEMICOLON { DeclVar(x, y, affectationExpr) }
 
 
-param_classe: option(VAR) x = ID DEUXPTS y = IDC { ParamC(x, y) }
+param_classe: o = boption(VAR) x = ID DEUXPTS y = IDC { ParamC(o, x, y) }
+
 
 extends: EXTENDS x = IDC { Extends x }
-
 
 super: DEUXPTS x = IDC listArguments = delimited(LPAREN, separated_list(COMMA, expr), RPAREN) { OptSuper(x, listArguments) }
 
@@ -116,23 +122,20 @@ cible: x = ID { CibleId x }
 //  | LPAREN AS x = IDC DEUXPTS c = cible RPAREN { CibleCast(x, c) } // A ENLEVER SELON PROF
 
 
+(* IL MANQUE LES APPELS (selection, appels de fonctions) avec les Objets !!! cad avec les IDC *)
 
 expr: x = ID { ExprId x }
   | v = CSTE { ExprCste v }
   | s = STRING {ExprString s}
-  | e = delimited (LPAREN, expr, RPAREN) { e }
+  | e = delimited (LPAREN, expr, RPAREN) { e } (* On peut renvoyer e sans nom ? Et pas sous cette une forme comme ExprParen(e) ? *)
   | LPAREN AS x = IDC DEUXPTS e = expr RPAREN { ExprCast(x,e) }
   | s = selection { ExprSelection s }
-
-
 
   | NEW x = IDC args = delimited(LPAREN, separated_list(COMMA, expr), RPAREN) { ExprInstanciation(x, args) }
   | e = expr DOT x = ID args = delimited(LPAREN, separated_list(COMMA, expr), RPAREN) { ExprAppelFonction(e, x, args) }
 
-
-
   | g = expr op = RELOP d = expr  { Comp(op, g, d) }
-  | g = expr PLUS d = expr { Plus(g, d) }
+  | g = expr PLUS d = expr 	{ Plus(g, d) }
   | g = expr MINUS d = expr       { Minus(g, d) }
   | g = expr TIMES d = expr       { Times(g, d) }
   | g = expr DIV d = expr         { Div(g, d) }

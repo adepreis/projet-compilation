@@ -18,27 +18,6 @@ type expType =
 | Ite of expType*expType*expType
 *)
 
-(*
-| Cast of string*expType (* pb voir commentaire au dessus *)
-| Select of selection
-| Object of objet
-| Instanciation of string*list_arg
-| Message of ??????? (* pb *)
-(* | ExpTypeOperator of expTypeOperator , puis separer les Plus, Minus, ... dans expTypeOperator ? *)
-
-*)
-
-(*
-type selection = Selection of objet*string
-(* Forme de ce qu'on appellera un Objet, soit une instance d'une classe *)
-type objet =
-ObjetId of string*objet_Opt list option
-|ObjetMethod of string*list_arg*objet_Opt list option
-(* Forme des diverses possibilites d'objets *)
-type objet_Opt = ObjetIdOpt of string | ObjetMethodOpt of string*list_arg
-*)
-
-
 
 (* CODE DU PROF
 type decl = {
@@ -47,6 +26,7 @@ type decl = {
   }
 *)
 
+
 type opCompType =
   Eq | Neq | Lt | Le | Gt | Ge
 
@@ -54,84 +34,88 @@ type exprType =
 ExprId of string
 |ExprCste of int
 |ExprString of string
-|ExprCast of string*exprType
+|ExprCast of string * exprType
 |ExprSelection of selectionType
-|ExprInstanciation of string*exprType list (*option*)
-|ExprAppelFonction of exprType*string*exprType list (*option*)
-| Plus of exprType*exprType
-| Minus of exprType*exprType
-| Times of exprType*exprType
-| Div of exprType*exprType
+|ExprInstanciation of string * exprType list
+|ExprAppelFonction of exprType * string * exprType list
+| Plus of exprType * exprType
+| Minus of exprType * exprType
+| Times of exprType * exprType
+| Div of exprType * exprType
 | UPlus of exprType
 | UMinus of exprType
-| Comp of opCompType*exprType*exprType
-and selectionType = Selection of exprType*string
-
-type paramCType =
-ParamC of string*string
-
-
-type extendsType = Extends of string
-
-
-type optSuperType = OptSuper of string*exprType list (*option*)
-
+| Comp of opCompType * exprType * exprType
+and selectionType = Selection of exprType * string
 
 
 
 type cibleType =
 CibleId of string
-|CibleLId of exprType*string
+|CibleLId of exprType * string
 (*|CibleCast of string*cibleType // A ENLEVER SELON PROF *)
 
 (* type exprReturnType =
 ExprReturnExpr of exprType
 | ExprReturnId of string  *) (* SI InstrReturn of None, on renvoie result (lire p2 enonce) #Remy *)
 
-type declVarType = DeclVar of string*string*exprType option (* ce sont des variables locales *)
 
-type instrType =
-InstrExpr of exprType
-|InstrBloc of blocType
-|InstrReturnExpr of (* exprReturnType *) exprType option
-|InstrAffect of cibleType*exprType
-|InstrITE of exprType*instrType*instrType
-and blocType =
-BlocInstr of instrType list
-|BlocDeclAndInstr of declVarType list*instrType list
+type optSuperType = OptSuper of string * exprType list
 
-type retourType =
-TypeRetour of string
+type extendsType = Extends of string
 
 
+type paramCType =
+ParamC of bool * string * string
 
-type finDeclMethodeType =
-FinDeclMethodExpr of string*exprType
-|FinDeclMethodBloc of retourType option *blocType
 
 type affectationType =
 Affectation of exprType
 
+type declVarType = DeclVar of string * string * affectationType option (* ce sont des variables locales *)
+
+
+type instrType =
+InstrExpr of exprType
+|InstrBloc of blocType
+|InstrReturnExpr of (* exprReturnType *) exprType option  (* Discuter de ce cas special ! *)
+|InstrAffect of cibleType * exprType
+|InstrITE of exprType * instrType * instrType
+and blocType =
+BlocInstr of instrType list
+|BlocDeclAndInstr of declVarType list * instrType list
+
+
+type retourType =
+TypeRetour of string
+
+type finDeclMethodeType =
+FinDeclMethodExpr of string * exprType
+|FinDeclMethodBloc of retourType option * blocType
 
 type paramMethodeType = 
-ParamMethode of string*string (* à ne pas confondre avec paramCType, meme définition mais type différent *)
+ParamMethode of string * string (* à ne pas confondre avec paramCType, meme définition mais type différent *)
 
-type declObjetType =
-DeclAttrObjet of string*string*exprType option
-|DeclMethodeObjet of string*string*paramMethodeType option *finDeclMethodeType
 
 type declClasseType =
-DeclAttrClasse of string*string*exprType option
-|DeclMethodeClasse of string option*string*paramMethodeType list *finDeclMethodeType (* remplacer override par un booléen ça sera plus pratique à gérer (boption) *)
-|DeclConstrClasse of string * paramCType list option * optSuperType option * blocType
+DeclAttrClasse of string * string * affectationType option
+|DeclMethodeClasse of bool * string * paramMethodeType list * finDeclMethodeType (* remplacer override par un booléen ça sera plus pratique à gérer (boption) *)
+|DeclConstrClasse of string * paramCType list * optSuperType option * blocType
+
+type declObjetType =
+DeclAttrObjet of string * string * affectationType option
+|DeclMethodeObjet of bool * string * paramMethodeType list * finDeclMethodeType
 
 type defType =
-DefObj of string*declObjetType list option
-|DefClasse of string*paramCType list option * extendsType option* declClasseType list
+DefObj of string * declObjetType list
+|DefClasse of string * paramCType list * extendsType option * declClasseType list
 
 
-type progType = Prog of defType list option *blocType (* Type du programme *)
+type progType = Prog of defType list * blocType
 
+
+(* J'ai enleve les "option" des list, car on a dit qu'on considere qu'une liste peut etre vide et que si on fait : "option(list(A))", ce ne sera jamais optionnel puisqu'il y aura tjs au minimum une liste VIDE [] *)
+
+(* Ca peut marcher si on fait "option(nonempty_list(A))" ce qui serait optionnel si la liste est VIDE, mais pour je ne sais quelle raison, quand je compile, les erreurs different... *)
 
 
 
