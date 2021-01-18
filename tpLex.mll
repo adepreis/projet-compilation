@@ -79,9 +79,12 @@ and
          *)
         try
           Hashtbl.find keyword_table id
-        with Not_found -> if (String.get id 0 != lettreMaj)	(* Si la première lettre est une maj, on différencie ID et IDC *)
-        				  then ID id
-        				  else IDC id
+        with Not_found -> let i = int_of_char (String.get id 0) in
+                    if (65 <= i && i <= 90)	(* Si la première lettre est une maj, on différencie ID et IDC *)
+        				  then IDC id
+        				  else ID id
+
+    
       }
   | [' ''\t''\r']+  { (* consommer les delimiteurs, ne pas les transmettre
                        * et renvoyer ce que renverra un nouvel appel a
