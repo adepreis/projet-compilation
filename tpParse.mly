@@ -7,7 +7,7 @@ open Ast
 %token <int> CSTE
 %token <string> STRING
 %token <Ast.opCompType> RELOP
-%token PLUS MINUS TIMES DIV
+%token PLUS MINUS TIMES DIV CONCAT
 %token LPAREN RPAREN SEMICOLON
 %token ASSIGN
 
@@ -33,13 +33,10 @@ open Ast
 %token COMMA
 %token DOT
 
-%token BEGIN
-%token END
-
-
 %token EOF
 
 %nonassoc RELOP
+%left CONCAT
 %left PLUS MINUS        /* lowest precedence */
 %left TIMES DIV         /* medium precedence */
 %left High     /* highest precedence */
@@ -138,6 +135,7 @@ expr: x = ID { ExprId x }
   | g = expr MINUS d = expr       { Minus(g, d) }
   | g = expr TIMES d = expr       { Times(g, d) }
   | g = expr DIV d = expr         { Div(g, d) }
+  | g = expr CONCAT d = expr         { Concat(g, d) }
   | PLUS e = expr  %prec High     { UPlus e } // vérifier partie droite
   | MINUS e = expr %prec High     { UMinus e } // vérifier partie droite
 

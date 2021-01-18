@@ -64,22 +64,29 @@ Then build the executable `interp` from source code using :
 
 You can find all the test files in the `/tests` repertory.
 
-Use of the interpreter :
+You can test the parser using
 
-`interp test-file-name`
+`make testLex` then `./testLex /tests/.../testFile.txt`
 
-with debug mode (step-by-step mode, setting breakpoints, visualize the memory content, the current instruction, etc..) :
 
-`interp -d test-file-name`
+_When the code generation (PUSHI, STOREG, etc..) will work :_
+
+> Use of the interpreter :
+> 
+> `interp test-file-name`
+> 
+> with debug mode (step-by-step mode, setting breakpoints, visualize the memory content, the current instruction, etc..) :
+> 
+> `interp -d test-file-name`
 
 ---
 
 ### Contribution of each member of the group
 
-- Lucas B. : grammar, parser, test files
-- Antonin D. : grammar, parser, test files
-- Rémy T. : grammar, AST, lexical analyser
-- Tri-Man William V. : grammar, AST, lexical analyser
+- Lucas B. : grammar, parser, test files, lexical tester
+- Antonin D. : grammar, parser, test files, lexical tester
+- Rémy T. : grammar, AST, lexical analyser, code generation
+- Tri-Man William V. : grammar, AST, lexical analyser, code generation
 
 
 ---

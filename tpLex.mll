@@ -17,9 +17,7 @@ let _ =
     [ "if", IF;
       "then", THEN;
       "else", ELSE;
-      "begin", BEGIN;
-      "end", END
-      (* TOKENS AJOUTES : *);
+      (* TOKENS AJOUTES : *)
       "class", CLASS;
       "extends", EXTENDS;
       "is", IS;
@@ -44,7 +42,29 @@ let lettreMaj = ['A'-'Z']
 let chiffre = ['0'-'9']
 let LC = ( chiffre | lettre )
 
+
 rule
+ chaine tempo = parse
+             "\"" { (* fin de string trouvee *)
+                    STRING tempo
+                  }
+  | '\n'           { (* incremente le compteur de ligne et poursuit la
+                      * reconnaissance de la chaine de caractère en cours
+                      *)
+                     new_line lexbuf; chaine tempo lexbuf
+                   }
+  | "\\\""           { (* detecte un echapement de quote dans une chaine *)
+                     chaine (tempo ^ "\\\"") lexbuf
+                   }
+  | eof            { (* detecte les chaines de caractères non fermees pour
+                      * pouvoir faire un message d'erreur clair *)
+                     failwith "unclosed string";
+                   }
+  | _ as caractere { (* rien a faire de special pour ce caractere, donc on
+                      * poursuit la reconnaissance du string en cours *)
+                     chaine (tempo ^ (String.make 1 caractere)) lexbuf
+                   }
+and
  comment = parse
              "*/" { (* fin de commentaire trouvee. Le commentaire ne doit pas
                      * etre transmis. On renvoie donc ce que nous renverra un
@@ -81,8 +101,8 @@ and
           Hashtbl.find keyword_table id
         with Not_found -> let i = int_of_char (String.get id 0) in
                     if (65 <= i && i <= 90)	(* Si la première lettre est une maj, on différencie ID et IDC *)
-        				  then IDC id
-        				  else ID id
+          				  then IDC id
+          				  else ID id
 
     
       }
@@ -95,10 +115,12 @@ and
   | '\n'           { next_line lexbuf; token lexbuf}
   | chiffre+ as lxm { CSTE(int_of_string lxm) }
   | "/*"           { comment lexbuf }
+  | "\""           { chaine "" lexbuf }
   | '+'            { PLUS }
   | '-'            { MINUS }
   | '*'            { TIMES }
   | '/'            { DIV }
+  | '&'            { CONCAT }
   | '('            { LPAREN }
   | ')'            { RPAREN }
   | ';'            { SEMICOLON }
@@ -119,7 +141,7 @@ and
                       * de ceux qui precedent. Il s'agit d'un caratere errone:
                       * on le signale et on poursuit quand meme l'analyse
                       *)
-                     print_endline
+                      print_endline
                        ("undefined character: " ^ (String.make 1 lxm));
                      token lexbuf
                    }

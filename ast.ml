@@ -43,6 +43,7 @@ ExprId of string
 | Minus of exprType * exprType
 | Times of exprType * exprType
 | Div of exprType * exprType
+| Concat of exprType * exprType
 | UPlus of exprType
 | UMinus of exprType
 | Comp of opCompType * exprType * exprType
