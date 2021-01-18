@@ -122,8 +122,6 @@ cible: x = ID { CibleId x }
 //  | LPAREN AS x = IDC DEUXPTS c = cible RPAREN { CibleCast(x, c) } // A ENLEVER SELON PROF
 
 
-(* IL MANQUE LES APPELS (selection, appels de fonctions) avec les Objets !!! cad avec les IDC *)
-
 expr: x = ID { ExprId x }
   | v = CSTE { ExprCste v }
   | s = STRING {ExprString s}
