@@ -133,6 +133,7 @@ expr: x = ID { ExprId x }
 
   | NEW x = IDC args = delimited(LPAREN, separated_list(COMMA, expr), RPAREN) { ExprInstanciation(x, args) }
   | e = expr DOT x = ID args = delimited(LPAREN, separated_list(COMMA, expr), RPAREN) { ExprAppelFonction(e, x, args) }
+  | y = IDC DOT x = ID args = delimited(LPAREN, separated_list(COMMA, expr), RPAREN) { ExprAppelFonctionObjet(y, x, args) }
 
   | g = expr op = RELOP d = expr  { Comp(op, g, d) }
   | g = expr PLUS d = expr 	{ Plus(g, d) }

@@ -38,6 +38,7 @@ ExprId of string
 |ExprSelection of selectionType
 |ExprInstanciation of string * exprType list
 |ExprAppelFonction of exprType * string * exprType list
+|ExprAppelFonctionObjet of string * string * exprType list
 | Plus of exprType * exprType
 | Minus of exprType * exprType
 | Times of exprType * exprType
