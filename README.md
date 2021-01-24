@@ -2,22 +2,23 @@
 
 Compilation project - Polytech ET4 IT - Noted for S7 (2020)
 
-## Objectives / Asked work
+powered by [![Ocaml](https://img.shields.io/badge/Ocaml-F29100?style=for-the-badge&logo=Ocaml&logoColor=white)](https://ocaml.org/)
 
-- [Subject link](./projet_2020-21.pdf) :fr:
-- [Subject link - machine abstraite](./ProjetCompilation.pdf) :fr:
-- [Subject link- Code intermédiaire](./CodeInt.pdf) :fr:
+## Asked work
 
-All remaining bugs and unimplemented features are listed [here](https://github.com/adepreis/projet-compilation/issues).
+- [Subject link](./doc/projet_2020-21.pdf) :fr:
+- [Subject link - machine abstraite](./doc/ProjetCompilation.pdf) :fr:
+- [Subject link- Code intermédiaire](./doc/CodeInt.pdf) :fr:
+
+All remaining bugs and unimplemented features are listed [here](https://github.com/adepreis/projet-compilation/projects/1).
 
 ## How it works
 
-* Un fichier `ast.ml` qui contient des définitions de type ocaml pour vos futurs Abstract Syntax Tree (AST).
-* le fichier `tpParse.mly` contient un squelette de fichier pour menhir. Ce fichier est à compléter pour obtenir un analyseur syntaxique complet et correct, cohérent avec l'analyseur lexical.
-* Le fichier `tpLex.mll` qui contient une ébauche de description pour construire votre futur analyseur lexical avec ocamllex. 
-* le fichier `test_lex.ml` pour vous aider à visualiser ce que renvoie l’analyseur lexical: il se contente d'appeler l'analyseur lexical et d'imprimer des messages selon les tokens qu'il reçoit. Utile pour tester votre propre analyseur lexical.
-* le fichier `main.ml` lance l'analyse syntaxique et, ultérieurement, les autres phases de la compilation.
-* le fichier `Makefile` produit les différents exécutables
+* The `ast.ml` file which contains the ocaml type definitions for the Abstract Syntax Tree (AST).
+* The `tpParse.mly` file is the parser designed for menhir.
+* The `tpLex.mll` file contains the description of the lexical parser with ocamllex. 
+* The `testLex.ml` file allows you to see what the lexical analyser returns by printing the tokens it receives.
+* The `Makefile` file is used to produce the different executables.
 
 ## Getting Started
 
@@ -34,18 +35,10 @@ Things you need to install the project :
 - [libfl-dev](https://packages.debian.org/fr/jessie/libfl-dev) (static library for flex)
 - [bison](https://www.gnu.org/software/bison/)
 - [menhir](http://gallium.inria.fr/~fpottier/menhir/)
-- [ocamllex](https://caml.inria.fr/pub/docs/manual-ocaml/lexyacc.html) ??
-
-### Schéma général / "étapes de construction du compilateur (??)"
-
-`menhir [options] tpParse.mly`
-
-`ocamllex [options] tpLex.mll`
-
-`ocamlc [options] vos-fichiers.ml tpParse.mll tpLex.ml`
+- [ocamllex](https://caml.inria.fr/pub/docs/manual-ocaml/lexyacc.html)
 
 
-### "Installing"
+### Installation
 
 Here are some instructions on how to get the development env running.
 
@@ -53,10 +46,11 @@ First, clone this repository with the following command :
 
 `git clone https://github.com/adepreis/projet-compilation`
 
-Then build the executable `interp` from source code using :
+> ~~Then build the executable `interp` from source code using :~~
+> 
+> ~~`make` (or `make clean` to delete the executable file and all the object files from the directory)~~
 
-`make` (or `make clean` to delete the executable file and all the object files from the directory)
-
+Note : the `interp` file has already been created under `/interp` folder.
 
 ---
 
@@ -71,13 +65,13 @@ You can test the parser using
 
 _When the code generation (PUSHI, STOREG, etc..) will work :_
 
-> Use of the interpreter :
+> Use of the interpreter (at the project's root) :
 > 
-> `interp test-file-name`
+> `./interp/interp test-file-name`
 > 
 > with debug mode (step-by-step mode, setting breakpoints, visualize the memory content, the current instruction, etc..) :
 > 
-> `interp -d test-file-name`
+> `./interp/interp -d test-file-name`
 
 ---
 
@@ -93,7 +87,7 @@ _When the code generation (PUSHI, STOREG, etc..) will work :_
 
 ## Documentation
 
-In the `/doc` folder, you can find ...
+In the `/doc` folder, you can find some documentation about the project like the grammar we have created and later our project report.
 
 ## Debugging commands
 
@@ -104,3 +98,13 @@ Generate the `tpParse.conflicts` file that explains all the conflicts :
 Generate the `tpParse.automaton` file that describes the automaton states :
 
 `menhir --dump tpParse.mly`
+
+<!--
+### Schéma général / "étapes de construction du compilateur (??)"
+
+`menhir [options] tpParse.mly`
+
+`ocamllex [options] tpLex.mll`
+
+`ocamlc [options] vos-fichiers.ml tpParse.mll tpLex.ml`
+-->
