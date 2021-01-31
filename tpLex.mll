@@ -4,12 +4,10 @@ open TpParse
 open Lexing
 exception Eof
 
-(* gere les positions numero de ligne + decalage dans la ligne *)
+(* Gere les positions numero de ligne + decalage dans la ligne *)
 let next_line lexbuf = Lexing.new_line lexbuf
 
-(* cree une table de hachage qu'on remplit avec le token associe
- * a chaque mot-clef
- *)
+(* Cree une table de hachage qu'on remplit avec le token associe a chaque mot-clef *)
 let keyword_table = Hashtbl.create 16
 let _ =
   List.iter
@@ -17,7 +15,7 @@ let _ =
     [ "if", IF;
       "then", THEN;
       "else", ELSE;
-      (* TOKENS AJOUTES : *)
+      
       "class", CLASS;
       "extends", EXTENDS;
       "is", IS;
@@ -26,8 +24,8 @@ let _ =
       "object", OBJECT;
       "override", OVERRIDE;
       "this", THIS;
-      "super", SUPER; (* inutile sauf si on le gere comme THIS -> super. ou constructeur super(...) *)
-      "result", RESULT; (* A verifier *)
+      "super", SUPER;
+      "result", RESULT; 
       "new", NEW;
       "as", AS;
       "return", RETURN

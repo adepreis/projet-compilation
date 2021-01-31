@@ -10,10 +10,8 @@ open Ast
 %token PLUS MINUS TIMES DIV CONCAT
 %token LPAREN RPAREN SEMICOLON
 %token ASSIGN
-
 %token IF THEN ELSE
 
-/* Rajouter tous les nouveaux tokens + verifier s'il faut leur donner des 'champs' */
 %token CLASS
 %token EXTENDS
 %token IS
@@ -22,8 +20,8 @@ open Ast
 %token OBJECT
 %token OVERRIDE
 %token THIS /* %token <string> THIS */ /* pour stocker la classe en VC */
-%token SUPER /* inutile sauf si on le gere comme THIS -> super. ou constructeur super(...) */
-%token RESULT /* A verifier */
+%token SUPER /* %token <string> SUPER */
+%token RESULT 
 %token NEW
 %token AS
 %token RETURN
@@ -37,14 +35,14 @@ open Ast
 
 %nonassoc RELOP
 %left CONCAT
-%left PLUS MINUS        /* lowest precedence */
-%left TIMES DIV         /* medium precedence */
-%left High     /* highest precedence */
+%left PLUS MINUS  
+%left TIMES DIV 
+%left High     
 %right DOT
+
 
 /* Correspondance des types avec l'AST */
 
-/* prog/progType déjà compris dans start */
 %type <defType> definition
 %type <blocType> block
 %type <declObjetType> declaration_objet
@@ -58,9 +56,8 @@ open Ast
 %type <finDeclMethodeType> fin_decl_methode
 %type <retourType> type_retour 
 %type <instrType> instruction
-//%type <cibleType> cible
-//%type <appelFonctionType> appel_fonction
-//%type <selectionType> selection
+%type <cibleType> cible
+%type <selectionType> selection
 
 %start<Ast.progType> prog
 %%
@@ -77,17 +74,19 @@ declaration_objet: VAR x = ID DEUXPTS y = IDC affectationExpr = option(affectati
     fin = fin_decl_methode { DeclMethodeObjet(o, x, lParamMethode, fin) }
 
 declaration_classe: VAR x = ID DEUXPTS y = IDC affectationExpr = option(affectation_expr) SEMICOLON { DeclAttrClasse(x, y, affectationExpr) }
-  | DEF o = boption(OVERRIDE) x = ID lParamMethode = delimited(LPAREN, separated_list(COMMA, param_methode), RPAREN) (* to do : regarder photos, considérer une meme regle d ast pour les 3 *)
-    fin = fin_decl_methode { DeclMethodeClasse(o, x, lParamMethode, fin) }
+  | DEF o = boption(OVERRIDE) x = ID lParamMethode = delimited(LPAREN, separated_list(COMMA, param_methode), RPAREN) fin = fin_decl_methode { DeclMethodeClasse(o, x, lParamMethode, fin) }
   | DEF x = IDC lParamClasse = delimited(LPAREN, list(param_classe), RPAREN) s = option(super) IS bloc = block { DeclConstrClasse(x, lParamClasse, s, bloc) }
 
 
 affectation_expr: ASSIGN e = expr { Affectation e }
 
+
 param_methode: x = ID DEUXPTS y = IDC { ParamMethode (x,y) }
+
 
 fin_decl_methode: DEUXPTS x = IDC ASSIGN e = expr { FinDeclMethodExpr(x, e) }
   | typeRetour = option(type_retour) IS bloc = block { FinDeclMethodBloc(typeRetour, bloc) }
+
 
 type_retour: DEUXPTS x = IDC { TypeRetour x }
 
@@ -115,14 +114,12 @@ instruction: e = expr SEMICOLON { InstrExpr e }
 
 cible: x = ID { CibleId x }
     | e = expr DOT x = ID { CibleLId(e, x) }
-//  | c =  delimited(LPAREN, cible, RPAREN) { CibleId c } // PAS TRES UTILE
-//  | LPAREN AS x = IDC DEUXPTS c = cible RPAREN { CibleCast(x, c) } // A ENLEVER SELON PROF
 
 
 expr: x = ID { ExprId x }
   | v = CSTE { ExprCste v }
   | s = STRING {ExprString s}
-  | e = delimited (LPAREN, expr, RPAREN) { e } (* On peut renvoyer e sans nom ? Et pas sous cette une forme comme ExprParen(e) ? *)
+  | e = delimited (LPAREN, expr, RPAREN) { e }
   | LPAREN AS x = IDC DEUXPTS e = expr RPAREN { ExprCast(x,e) }
   | s = selection { ExprSelection s }
 
@@ -131,13 +128,14 @@ expr: x = ID { ExprId x }
   | y = IDC DOT x = ID args = delimited(LPAREN, separated_list(COMMA, expr), RPAREN) { ExprAppelFonctionObjet(y, x, args) }
 
   | g = expr op = RELOP d = expr  { Comp(op, g, d) }
-  | g = expr PLUS d = expr 	{ Plus(g, d) }
+  | g = expr PLUS d = expr 	   { Plus(g, d) }
   | g = expr MINUS d = expr       { Minus(g, d) }
   | g = expr TIMES d = expr       { Times(g, d) }
   | g = expr DIV d = expr         { Div(g, d) }
-  | g = expr CONCAT d = expr         { Concat(g, d) }
-  | PLUS e = expr  %prec High     { UPlus e } // vérifier partie droite
-  | MINUS e = expr %prec High     { UMinus e } // vérifier partie droite
+  | g = expr CONCAT d = expr      { Concat(g, d) }
+  | PLUS e = expr  %prec High     { UPlus e } 
+  | MINUS e = expr %prec High     { UMinus e }
 
 
 selection: e = expr DOT x = ID { Selection(e, x) }
+
