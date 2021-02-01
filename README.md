@@ -16,7 +16,7 @@ All remaining bugs and unimplemented features are listed [here](https://github.c
 
 * The `ast.ml` file which contains the ocaml type definitions for the Abstract Syntax Tree (AST).
 * The `tpParse.mly` file is the parser designed for menhir.
-* The `tpLex.mll` file contains the description of the lexical parser with ocamllex. 
+* The `tpLex.mll` file contains the description of the lexical parser with ocamllex.
 * The `testLex.ml` file allows you to see what the lexical analyser returns by printing the tokens it receives.
 * The `Makefile` file is used to produce the different executables.
 

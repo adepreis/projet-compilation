@@ -19,9 +19,9 @@ open Ast
 %token DEF
 %token OBJECT
 %token OVERRIDE
-%token THIS /* %token <string> THIS */ /* pour stocker la classe en VC */
-%token SUPER /* %token <string> SUPER */
-%token RESULT 
+%token THIS   /* %token <string> THIS */ /* pour stocker la classe en VC */
+%token SUPER  /* %token <string> SUPER */
+%token RESULT
 %token NEW
 %token AS
 %token RETURN
@@ -35,14 +35,14 @@ open Ast
 
 %nonassoc RELOP
 %left CONCAT
-%left PLUS MINUS  
-%left TIMES DIV 
-%left High     
+%left PLUS MINUS  /* lowest precedence */
+%left TIMES DIV   /* medium precedence */
+%left High        /* highest precedence */
 %right DOT
 
 
 /* Correspondance des types avec l'AST */
-
+/* prog/progType déjà compris dans start */
 %type <defType> definition
 %type <blocType> block
 %type <declObjetType> declaration_objet
@@ -54,7 +54,7 @@ open Ast
 %type <affectationType> affectation_expr
 %type <paramMethodeType> param_methode
 %type <finDeclMethodeType> fin_decl_methode
-%type <retourType> type_retour 
+%type <retourType> type_retour
 %type <instrType> instruction
 %type <cibleType> cible
 %type <selectionType> selection
@@ -70,7 +70,7 @@ definition: OBJECT x = IDC IS lOptDecl = delimited(LACOLADE, list(declaration_ob
     optExtends = option(extends) IS blockClasse = delimited(LACOLADE, list(declaration_classe), RACOLADE) { DefClasse(x, lParamClasse, optExtends, blockClasse) }
 
 declaration_objet: VAR x = ID DEUXPTS y = IDC affectationExpr = option(affectation_expr) SEMICOLON { DeclAttrObjet(x, y, affectationExpr) }
-  | DEF o = boption(OVERRIDE) x = ID lParamMethode = delimited(LPAREN, separated_list(COMMA, param_methode), RPAREN) 
+  | DEF o = boption(OVERRIDE) x = ID lParamMethode = delimited(LPAREN, separated_list(COMMA, param_methode), RPAREN)
     fin = fin_decl_methode { DeclMethodeObjet(o, x, lParamMethode, fin) }
 
 declaration_classe: VAR x = ID DEUXPTS y = IDC affectationExpr = option(affectation_expr) SEMICOLON { DeclAttrClasse(x, y, affectationExpr) }
@@ -81,7 +81,7 @@ declaration_classe: VAR x = ID DEUXPTS y = IDC affectationExpr = option(affectat
 affectation_expr: ASSIGN e = expr { Affectation e }
 
 
-param_methode: x = ID DEUXPTS y = IDC { ParamMethode (x,y) }
+param_methode: x = ID DEUXPTS y = IDC { ParamMethode (x, y) }
 
 
 fin_decl_methode: DEUXPTS x = IDC ASSIGN e = expr { FinDeclMethodExpr(x, e) }
@@ -118,9 +118,9 @@ cible: x = ID { CibleId x }
 
 expr: x = ID { ExprId x }
   | v = CSTE { ExprCste v }
-  | s = STRING {ExprString s}
+  | s = STRING { ExprString s }
   | e = delimited (LPAREN, expr, RPAREN) { e }
-  | LPAREN AS x = IDC DEUXPTS e = expr RPAREN { ExprCast(x,e) }
+  | LPAREN AS x = IDC DEUXPTS e = expr RPAREN { ExprCast(x, e) }
   | s = selection { ExprSelection s }
 
   | NEW x = IDC args = delimited(LPAREN, separated_list(COMMA, expr), RPAREN) { ExprInstanciation(x, args) }
@@ -128,14 +128,13 @@ expr: x = ID { ExprId x }
   | y = IDC DOT x = ID args = delimited(LPAREN, separated_list(COMMA, expr), RPAREN) { ExprAppelFonctionObjet(y, x, args) }
 
   | g = expr op = RELOP d = expr  { Comp(op, g, d) }
-  | g = expr PLUS d = expr 	   { Plus(g, d) }
+  | g = expr PLUS d = expr 	      { Plus(g, d) }
   | g = expr MINUS d = expr       { Minus(g, d) }
   | g = expr TIMES d = expr       { Times(g, d) }
   | g = expr DIV d = expr         { Div(g, d) }
   | g = expr CONCAT d = expr      { Concat(g, d) }
-  | PLUS e = expr  %prec High     { UPlus e } 
+  | PLUS e = expr  %prec High     { UPlus e }
   | MINUS e = expr %prec High     { UMinus e }
 
 
 selection: e = expr DOT x = ID { Selection(e, x) }
-

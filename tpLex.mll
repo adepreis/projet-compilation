@@ -15,7 +15,7 @@ let _ =
     [ "if", IF;
       "then", THEN;
       "else", ELSE;
-      
+
       "class", CLASS;
       "extends", EXTENDS;
       "is", IS;
@@ -25,7 +25,7 @@ let _ =
       "override", OVERRIDE;
       "this", THIS;
       "super", SUPER;
-      "result", RESULT; 
+      "result", RESULT;
       "new", NEW;
       "as", AS;
       "return", RETURN
@@ -93,7 +93,7 @@ and
       {
       	(* id contient le texte reconnu. On verifie s'il s'agit d'un mot-clef
          * auquel cas on renvoie le token associe. Sinon on renvoie Id avec le
-         * texte reconnu en valeur 
+         * texte reconnu en valeur
          *)
         try
           Hashtbl.find keyword_table id
@@ -102,7 +102,6 @@ and
           				  then IDC id
           				  else ID id
 
-    
       }
   | [' ''\t''\r']+  { (* consommer les delimiteurs, ne pas les transmettre
                        * et renvoyer ce que renverra un nouvel appel a
