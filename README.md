@@ -79,8 +79,8 @@ _When the code generation (PUSHI, STOREG, etc..) will work :_
 
 - Lucas B. : grammar, parser, test files, lexical tester
 - Antonin D. : grammar, parser, test files, lexical tester
-- Rémy T. : grammar, AST, lexical analyser, code generation
-- Tri-Man William V. : grammar, AST, lexical analyser, code generation
+- Rémy T. : grammar, AST, lexical analyser, conflicts resolution
+- Tri-Man William V. : grammar, AST, lexical analyser, conflicts resolution, code generation
 
 
 ---
