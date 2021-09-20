@@ -14,6 +14,10 @@ jobs:
 
       - name: Set up OCaml
         uses: ocaml/setup-ocaml@v2
+
+      - name: menhir installation
+      - run: |
+          opam install menhir
       
       - run: echo "🖥️ The workflow is now ready to test your code on the runner."
 
