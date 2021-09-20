@@ -16,15 +16,15 @@ jobs:
         uses: ocaml/setup-ocaml@v2
 
       - name: menhir installation
-      - run: |
+        run: |
           opam install menhir
-      
+
       - run: echo "🖥️ The workflow is now ready to test your code on the runner."
 
       - name: Build parser
         run: |
           make testLex
-      
+
       - run: echo "The parser has been created, next step is execution of "examples", "shouldFail" and "shouldPass" tests.
 
       - name: Parser testing
