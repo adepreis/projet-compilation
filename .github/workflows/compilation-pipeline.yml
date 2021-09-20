@@ -1,0 +1,29 @@
+name: GitHub Actions Demo
+on: [push]
+
+jobs:
+  Make-Parser:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+        echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event and is now running on a ${{ runner.os }} server hosted by GitHub!"
+
+      - name: Check out repository code
+        uses: actions/checkout@v2
+
+      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
+
+      - name: Set up OCaml
+        uses: ocaml/setup-ocaml@v2
+      
+      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
+
+      - name: Build parser
+        run: |
+          make testLex
+      
+      - run: echo "The parser has been created, next step is execution of "examples", "shouldFail" and "shouldPass" tests.
+
+      - name: Parser testing
+        run: |
+          ./testLex /tests/*/*.txt

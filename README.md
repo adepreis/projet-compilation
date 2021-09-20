@@ -44,7 +44,7 @@ Here are some instructions on how to get the development env running.
 
 First, clone this repository with the following command :
 
-`git clone https://github.com/adepreis/projet-compilation`
+`git clone https://github.com/adepreis/projet-compilation.git`
 
 > ~~Then build the executable `interp` from source code using :~~
 > 
@@ -81,7 +81,6 @@ _When the code generation (PUSHI, STOREG, etc..) will work :_
 - Antonin D. : grammar, parser, test files, lexical tester
 - Rémy T. : grammar, AST, lexical analyser, conflicts resolution
 - Tri-Man William V. : grammar, AST, lexical analyser, conflicts resolution, code generation
-
 
 ---
 
