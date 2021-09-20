@@ -1,12 +1,11 @@
-name: GitHub Actions Demo
+name: Main workflow
 on: [push]
 
 jobs:
   Make-Parser:
     runs-on: ubuntu-latest
     steps:
-      - run: |
-        echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event and is now running on a ${{ runner.os }} server hosted by GitHub!"
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event and is now running on a ${{ runner.os }} server hosted by GitHub!"
 
       - name: Check out repository code
         uses: actions/checkout@v2
