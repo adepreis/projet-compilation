@@ -17,6 +17,7 @@ jobs:
 
       - name: Dependency installation
         run: |
+          opam init
           opam install menhir
           eval $(opam env)
           opam list
@@ -24,8 +25,9 @@ jobs:
       - run: |
           echo "🖥️ The workflow is now ready to test your code on the runner."
           opam show menhir
-          which menhir
 
+      # Consult https://opam.ocaml.org/doc/FAQ.html#Why-does-opam-init-need-to-add-stuff-to-my-init-scripts-why-is-eval-opam-env-needed
+      # if the problem of 'menhir command not found' persists
       - name: Build parser
         run: |
           make testLex
