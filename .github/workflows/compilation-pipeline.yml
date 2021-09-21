@@ -19,10 +19,11 @@ jobs:
         run: |
           opam install menhir
           eval $(opam env)
+          opam list
 
       - run: |
           echo "🖥️ The workflow is now ready to test your code on the runner."
-          opam list -a
+          opam show menhir
           which menhir
 
       - name: Build parser
